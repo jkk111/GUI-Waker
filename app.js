@@ -1,6 +1,6 @@
 var app = require("express")();
 var bp = require("body-parser");
-app.use(bp.urlEncoded({ extended: true }));
+app.use(bp.urlencoded({ extended: true }));
 var fs = require("fs");
 var wol = require("wake_on_lan")
 var conf;

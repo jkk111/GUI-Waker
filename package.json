@@ -1,0 +1,30 @@
+{
+  "name": "gui-waker",
+  "version": "1.0.0",
+  "description": "Gui & server to send wake on lan packets to clients on the local network",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.4",
+    "wake_on_lan": "0.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkk111/GUI-Waker.git"
+  },
+  "keywords": [
+    "wol",
+    "magic",
+    "packet"
+  ],
+  "author": "jkk111",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jkk111/GUI-Waker/issues"
+  },
+  "homepage": "https://github.com/jkk111/GUI-Waker#readme"
+}
