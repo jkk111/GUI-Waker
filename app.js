@@ -17,7 +17,7 @@ try {
 
 app.listen(conf.port);
 
-app.get("/", function() {
+app.get("/", function(req, res) {
 	res.send(__dirname + "/index.html");
 });
 
