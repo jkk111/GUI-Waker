@@ -1,0 +1,25 @@
+{
+  "name": "gui-waker",
+  "description": "Gui & server to send wake on lan packets to clients on the local network",
+  "main": "app.js",
+  "authors": [
+    "jkk111"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "wol",
+    "magic",
+    "packet"
+  ],
+  "moduleType": [
+    "node"
+  ],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

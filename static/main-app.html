@@ -1,0 +1,122 @@
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="bower_components/paper-item/paper-item.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="dropdown-list.html">
+<dom-module id="main-app">
+  <style>
+    :host {
+      width: 50%;
+      height: 50%;
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    paper-material {
+      width: 100%;
+      margin: auto 0;
+      /*position: absolute;*/
+      /*left: 50%;*/
+      /*transform: translateX(-50%);
+      top: 25%;
+      height: 50%;*/
+      overflow: hidden;
+    }
+    paper-dropdown-menu {
+      width: 100%;
+      overflow: hidden;
+    }
+    paper-input {
+
+    }
+  </style>
+  <template>
+    <iron-ajax auto id="clientsAjax" url="/clients" on-response="clientsReceived" handle-as="json"></iron-ajax>
+    <iron-ajax id="deleteAjax" url="/remove" on-response="clientsReceived" method="POST" content-type="application/x-www-form-urlencoded" body="{{deleteBody}}" handle-as="json"></iron-ajax>
+    <iron-ajax id="addAjax" url="/add" on-response="clientsReceived" method="POST" content-type="application/x-www-form-urlencoded" body="{{addBody}}" handle-as="json"></iron-ajax>
+    <iron-ajax id="wakeAjax" url="/wake" on-response="clientsReceived" method="POST" content-type="application/x-www-form-urlencoded" body="{{wakeBody}}" handle-as="json"></iron-ajax>
+    <paper-material elevation="2">
+      <dropdown-list on-delete="deleteItem" selected="{{selectedClient}}" items="{{clients}}">
+      </dropdown-list>
+      <template is="dom-if" if="{{clientIsSelected(selectedClient)}}">
+        <paper-button on-tap="sendWakePacket" style="margin:0;background-color:blue;width:100%;">WAKE UP CLIENT</paper-button>
+      </template>
+      <paper-input placeholder="Friendly name" style="padding: 4px;box-sizing: border-box;" value="{{friendlyName}}"></paper-input>
+      <paper-input placeholder="MAC Address" style="padding: 4px;box-sizing: border-box;" value="{{macAddress}}"></paper-input>
+      <paper-button on-tap="addItem" style="margin: 0; background-color: green;width: 100%">Add Client</paper-button>
+    </paper-material>
+  </template>
+  <script>
+    Polymer({
+      is: 'main-app',
+      properties: {
+        isMain: {
+          type: Boolean,
+          value: true
+        },
+        macAddress: {
+          type: String,
+          value: ""
+        },
+        friendlyName: {
+          type: String,
+          value: ""
+        },
+        wakeBody: {
+          type: Object,
+          computed: 'computeWakeBody(selectedClient)'
+        },
+        addBody: {
+          type: Object,
+          computed: 'computeAddBody(macAddress, friendlyName)'
+        }
+      },
+      clientIsSelected: function(value) {
+        console.log("test");
+        return value != -1;
+      },
+      canSeeClients: function(remove, main) {
+        return remove || main;
+      },
+      clientsReceived: function(e, res) {
+        if(!res || !res.response)
+          return;
+        if(!Array.isArray(res.response)) {
+          console.log("err");
+          return;
+        }
+        var clients = res.response;
+        console.log(clients);
+        this.set("clients", clients);
+      },
+      deleteItem: function(e, value) {
+        console.log(value);
+        this.deleteBody = { mac: value };
+        this.$.deleteAjax.generateRequest();
+      },
+      addItem: function() {
+        if(this.checkMac(this.macAddress))
+          this.$.addAjax.generateRequest();
+      },
+      sendWakePacket: function() {
+        this.$.wakeAjax.generateRequest();
+      },
+      computeAddBody: function(mac, name) {
+        return { mac: mac, name: name };
+      },
+      computeWakeBody: function(index) {
+        if(index >= this.clients.length || this.index < 0)
+          return;
+        return { mac: this.clients[index].mac };
+      },
+      checkMac: function(mac) {
+        return /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(mac);
+      }
+    })
+  </script>
+</dom-module>

@@ -1,25 +1,24 @@
-var app = require("express")();
+var express = require("express");
+var app = express();
 var bp = require("body-parser");
 app.use(bp.urlencoded({ extended: true }));
 var fs = require("fs");
 var wol = require("wake_on_lan")
 var conf;
 try {
-	fs.readFileSync("config.json", "utf8");
+	var conf = JSON.parse(fs.readFileSync("config.json", "utf8"));
 } catch(e) {
 	conf = {
 		port: 8080,
-		clients: [
-			"00:00:00:00:00:00"
-		]
+		clients: []
 	}
+  updateConf();
+  console.log("Created config file! Starting on port %d", conf.port)
 }
 
 app.listen(conf.port);
 
-app.get("/", function(req, res) {
-	res.send(__dirname + "/index.html");
-});
+app.use(express.static("static"))
 
 app.get("/clients", function(req, res) {
 	res.json(conf.clients);
@@ -27,22 +26,26 @@ app.get("/clients", function(req, res) {
 
 app.post("/add", function(req, res) {
   var mac = req.body.mac;
+  var name = req.body.name;
 	var index = findByMac(mac);
-  if(index) {
+  console.log(index);
+  if(index !== false) {
     res.send({ err: "E_CLIENT_EXISTS" });
   } else {
-    conf.clients.push(mac);
+    conf.clients.push({ mac: mac, name: name });
     updateConf();
-    res.sendStatus(200);
+    res.json(conf.clients);
   }
 });
 
 app.post("/remove", function(req, res) {
 	var mac = req.body.mac;
   var index = findByMac(mac);
-  if(index) {
+  console.log(index+":"+mac);
+  if(index !== false) {
     conf.clients.splice(index, 1);
     updateConf();
+    res.json(conf.clients);
   } else {
     res.send({ err: "E_CLIENT_NOT_EXIST" });
   }
@@ -50,6 +53,11 @@ app.post("/remove", function(req, res) {
 
 app.post("/wake", function(req, res) {
   var mac = req.body.mac;
+  var index = findByMac(mac);
+  if(index === false) {
+    res.send({ err: "E_CLIENT_NOT_EXIST" });
+    return;
+  }
   wol.wake(mac, function(err) {
     if(err) {
       res.sendStatus(500);
@@ -61,7 +69,7 @@ app.post("/wake", function(req, res) {
 
 function findByMac(mac) {
   for(var i = 0 ; i < conf.clients.length; i++) {
-    if(conf.clients[i] == mac) {
+    if(conf.clients[i].mac == mac) {
       return i;
     }
   }

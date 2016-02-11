@@ -1,0 +1,45 @@
+<link rel="import" href="bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<dom-module id="dropdown-list">
+  <style>
+    #list {
+      max-height: 144px;
+      overflow-y: auto;
+    }
+    .deleteItem {
+      cursor: pointer;
+      color: red;
+    }
+  </style>
+  <template>
+    <div id="list">
+      <template is="dom-repeat" items="{{items}}">
+        <paper-item mac="{{item.mac}}" index="{{index}}" on-tap="__selected">{{item.name}}<iron-icon title="Delete Client" class="deleteItem" on-tap="deleteItem" style="display:flex;margin-left:auto" icon="icons:remove-circle"></iron-icon></paper-item>
+      </template>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'dropdown-list',
+
+      properties: {
+        selected: {
+          type: Number,
+          notify: true
+        }
+      },
+
+      deleteItem: function(e) {
+        e.stopPropagation();
+        var mac = e.srcElement.parentElement.mac;
+        this.fire("delete", mac);
+      },
+
+      __selected: function(e) {
+        console.log(e.srcElement.index)
+        this.set("selected", e.srcElement.index)
+        console.log(this.selected)
+      }
+    })
+  </script>
+</dom-module>
